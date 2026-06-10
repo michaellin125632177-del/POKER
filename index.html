@@ -279,24 +279,25 @@ function initBT(){
   let deck=makeDeck();shuffle(deck);let hands=[[],[],[],[]];
   deck.forEach((c,i)=>hands[i%4].push(c));hands=hands.map(h=>h.sort(btCmp));
   const start=hands.findIndex(h=>h.some(c=>c.r==='3'&&c.s==='♣'));
-  BT={hands,turn:start,sel:[],last:[],lastP:-1,pass:[],msg:'遊戲開始！有♣3的玩家先出！',phase:'play',done:[],first:true};
+  BT={hands,turn:start,sel:[],last:[],lastP:-1,pass:[],msg:'遊戲開始！有♣3的玩家先出！',phase:'play',done:[]};
   renderBT();if(start!==0)setTimeout(btAI,1000);
 }
 function btSel(i){if(BT.turn!==0)return;const idx=BT.sel.indexOf(i);if(idx===-1)BT.sel.push(i);else BT.sel.splice(idx,1);renderBT();}
+function btIsFirst(){return BT.hands.some(h=>h.some(c=>c.r==='3'&&c.s==='♣'));}
 function btPlay(){
   if(BT.turn!==0||!BT.sel.length)return;
   const cards=BT.sel.map(i=>BT.hands[0][i]).sort(btCmp);
-  if(BT.first&&!cards.some(c=>c.r==='3'&&c.s==='♣')){BT.msg='第一手必須包含 ♣3！';renderBT();return;}
+  if(btIsFirst()&&!cards.some(c=>c.r==='3'&&c.s==='♣')){BT.msg='第一手必須包含 ♣3！';renderBT();return;}
   if(!btValid(cards,BT.last)){BT.msg='出牌無效！';renderBT();return;}
   BT.hands[0]=BT.hands[0].filter((_,i)=>!BT.sel.includes(i));
-  BT.last=cards;BT.lastP=0;BT.sel=[];BT.pass=[];BT.first=false;
+  BT.last=cards;BT.lastP=0;BT.sel=[];BT.pass=[];
   BT.msg='你出了 '+cards.map(c=>c.r+c.s).join(' ');
   if(!BT.hands[0].length){btEndRound();return;}
   BT.turn=1;renderBT();setTimeout(btAI,1000);
 }
 function btPass(){
   if(BT.turn!==0)return;
-  if(BT.first){BT.msg='第一手必須出牌！';renderBT();return;}
+  if(btIsFirst()){BT.msg='第一手必須出牌！';renderBT();return;}
   if(!BT.last.length){BT.msg='目前無場牌，不能過牌！';renderBT();return;}
   BT.pass.push(0);
   const alive=[0,1,2,3].filter(x=>!BT.done.includes(x));
@@ -307,7 +308,7 @@ function btPass(){
 function btAI(){
   const t=BT.turn;if(BT.phase!=='play')return;if(BT.done.includes(t)){btNext();return;}
   const hand=[...BT.hands[t]].sort(btCmp);let played=null;
-  if(BT.first){const c3=hand.find(c=>c.r==='3'&&c.s==='♣');if(c3){played=[c3];BT.first=false;}}
+  if(btIsFirst()){const c3=hand.find(c=>c.r==='3'&&c.s==='♣');if(c3)played=[c3];}
   else{
     const need=BT.last.length||1;
     if(need===1){for(const c of hand){if(btValid([c],BT.last)){played=[c];break;}}}
