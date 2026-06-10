@@ -2,685 +2,427 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="撲克合集">
+<meta name="theme-color" content="#076324">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>撲克牌遊戲合集</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#076324;min-height:100vh;color:#fff}
-#main-menu{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
-.menu-title{font-size:2.5rem;font-weight:700;color:#FFD700;text-shadow:2px 2px 4px rgba(0,0,0,0.5);margin-bottom:0.5rem}
-.menu-sub{font-size:1rem;color:#90EE90;margin-bottom:2.5rem}
-.game-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;max-width:600px;width:100%}
-.game-card{background:linear-gradient(135deg,#1a5c2a,#0d3d1a);border:2px solid #FFD700;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
-.game-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
-.game-icon{font-size:2.5rem;margin-bottom:0.75rem}
-.game-name{font-size:1.2rem;font-weight:700;color:#FFD700}
-.game-desc{font-size:0.8rem;color:#aed6ae;margin-top:0.3rem}
-#game-area{display:none;flex-direction:column;min-height:100vh}
-.game-header{background:rgba(0,0,0,0.3);padding:0.75rem 1rem;display:flex;align-items:center;gap:1rem}
-.back-btn{background:#8B0000;border:none;color:#fff;padding:0.4rem 0.9rem;border-radius:6px;cursor:pointer;font-size:0.85rem}
-.back-btn:hover{background:#a00000}
-.game-title{font-size:1.2rem;font-weight:700;color:#FFD700}
-#game-content{flex:1;padding:1rem;overflow-y:auto}
-
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Segoe UI',sans-serif;background:#076324;color:#fff;touch-action:manipulation}
+#app{height:100vh;display:flex;flex-direction:column;overflow:hidden}
+/* MENU */
+#main-menu{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:1.5rem}
+.menu-title{font-size:2rem;font-weight:700;color:#FFD700;text-shadow:2px 2px 4px rgba(0,0,0,0.5);margin-bottom:0.3rem}
+.menu-sub{font-size:0.9rem;color:#90EE90;margin-bottom:2rem}
+.game-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;width:100%;max-width:400px}
+.game-card{background:linear-gradient(135deg,#1a5c2a,#0d3d1a);border:2px solid #FFD700;border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;active:transform:scale(0.96)}
+.game-card:active{transform:scale(0.96)}
+.game-icon{font-size:2.2rem;margin-bottom:0.5rem}
+.game-name{font-size:1.1rem;font-weight:700;color:#FFD700}
+.game-desc{font-size:0.75rem;color:#aed6ae;margin-top:0.2rem}
+/* GAME AREA */
+#game-area{display:none;flex-direction:column;height:100vh;overflow:hidden}
+.game-header{background:rgba(0,0,0,0.35);padding:0.6rem 0.8rem;display:flex;align-items:center;gap:0.75rem;flex-shrink:0}
+.back-btn{background:#8B0000;border:none;color:#fff;padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem;flex-shrink:0}
+.game-title{font-size:1.1rem;font-weight:700;color:#FFD700}
+#game-info{margin-left:auto;font-size:0.8rem;color:#aed6ae;white-space:nowrap}
+#game-content{flex:1;overflow-y:auto;padding:0.75rem;-webkit-overflow-scrolling:touch}
 /* CARDS */
-.card{display:inline-flex;flex-direction:column;justify-content:space-between;width:58px;height:85px;background:#fff;border:1.5px solid #999;border-radius:7px;padding:4px 5px;cursor:pointer;user-select:none;position:relative;font-weight:700;font-size:0.9rem;transition:transform 0.1s}
-.card.red{color:#CC0000}
-.card.black{color:#111}
-.card .suit-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.4rem}
-.card.face-down{background:repeating-linear-gradient(45deg,#1a3a8f,#1a3a8f 5px,#2a4aaf 5px,#2a4aaf 10px);border:1.5px solid #888}
+.card{display:inline-flex;flex-direction:column;justify-content:space-between;width:52px;height:76px;background:#fff;border:1.5px solid #999;border-radius:6px;padding:3px 4px;cursor:pointer;user-select:none;position:relative;font-weight:700;font-size:0.8rem;vertical-align:top;flex-shrink:0}
+.card.red{color:#CC0000}.card.black{color:#111}
+.card .sc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem}
+.card.face-down{background:repeating-linear-gradient(45deg,#1a3a8f,#1a3a8f 5px,#2a4aaf 5px,#2a4aaf 10px);border-color:#888}
 .card.selected{transform:translateY(-10px);box-shadow:0 4px 12px rgba(255,215,0,0.8)}
-.card.dimmed{opacity:0.5}
-.card.small{width:44px;height:64px;font-size:0.75rem}
-.card.small .suit-center{font-size:1rem}
-
-/* MSG */
-.msg-box{background:rgba(0,0,0,0.5);border-radius:8px;padding:0.6rem 1rem;margin:0.5rem 0;font-size:0.9rem;text-align:center}
-.btn{background:#8B6914;border:none;color:#fff;padding:0.5rem 1.2rem;border-radius:7px;cursor:pointer;font-size:0.9rem;font-weight:600;margin:0.2rem}
-.btn:hover{background:#a07a1a}
-.btn.green{background:#1a6b1a}
-.btn.green:hover{background:#1f8a1f}
-.btn.red{background:#8B0000}
-.btn.red:hover{background:#a00000}
-.btn:disabled{opacity:0.4;cursor:default}
-
+.card.sm{width:38px;height:56px;font-size:0.65rem}.card.sm .sc{font-size:0.85rem}
+/* UI */
+.msg-box{background:rgba(0,0,0,0.5);border-radius:8px;padding:0.5rem 0.8rem;margin:0.4rem 0;font-size:0.85rem;text-align:center}
+.btn{background:#8B6914;border:none;color:#fff;padding:0.5rem 1rem;border-radius:7px;cursor:pointer;font-size:0.85rem;font-weight:600;margin:0.2rem;min-height:42px}
+.btn:active{opacity:0.8}
+.btn.g{background:#1a6b1a}.btn.r{background:#8B0000}
 /* SOLITAIRE */
-.sol-table{display:flex;flex-direction:column;gap:0.5rem}
-.sol-top{display:flex;gap:0.5rem;margin-bottom:0.5rem;flex-wrap:wrap}
-.sol-foundations{display:flex;gap:0.5rem}
-.foundation{width:58px;height:85px;border:2px dashed rgba(255,255,255,0.3);border-radius:7px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.75rem}
-.stock-waste{display:flex;gap:0.5rem;margin-left:auto}
-.stock{width:58px;height:85px;background:rgba(0,0,0,0.3);border:2px dashed rgba(255,255,255,0.3);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:1.2rem}
-.tableau{display:flex;gap:0.5rem;flex-wrap:nowrap;overflow-x:auto}
-.tableau-col{display:flex;flex-direction:column;min-width:60px;position:relative}
-.tableau-col .card{margin-bottom:-65px}
-.tableau-col .card:last-child{margin-bottom:0}
-
-/* BIGTWO */
-.bt-hand{display:flex;flex-wrap:wrap;gap:4px;margin:0.5rem 0;min-height:100px;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:8px}
-.bt-played{min-height:100px;background:rgba(0,0,0,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;padding:0.5rem;margin:0.5rem 0}
-.bt-others{display:flex;gap:1rem;margin-bottom:0.5rem;flex-wrap:wrap}
-.bt-other{background:rgba(0,0,0,0.3);border-radius:8px;padding:0.5rem;flex:1;min-width:120px}
-.bt-other-name{font-size:0.8rem;color:#aed6ae;margin-bottom:0.3rem}
-.score-badge{background:rgba(255,215,0,0.2);color:#FFD700;border-radius:4px;padding:2px 6px;font-size:0.75rem}
-
+.sol-top{display:flex;gap:4px;margin-bottom:6px;align-items:flex-start}
+.sol-foundations{display:flex;gap:4px}
+.stock-waste{display:flex;gap:4px;margin-left:auto}
+.fslot{width:52px;height:76px;border:2px dashed rgba(255,255,255,0.3);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:0.85rem;cursor:pointer;vertical-align:top;flex-shrink:0}
+.stock{width:52px;height:76px;background:rgba(0,0,0,0.3);border:2px dashed rgba(255,255,255,0.3);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:1.1rem;vertical-align:top;flex-shrink:0}
+.tableau{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.tcol{display:flex;flex-direction:column;min-width:54px}
+.tcol .cw{margin-bottom:-58px}.tcol .cw:last-child{margin-bottom:0}
+/* BIG TWO */
+.bt-others{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.4rem}
+.bt-other{background:rgba(0,0,0,0.3);border-radius:8px;padding:0.4rem;flex:1;min-width:90px}
+.bt-played{min-height:85px;background:rgba(0,0,0,0.2);border-radius:8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:0.4rem;margin:0.4rem 0}
+.bt-hand{display:flex;flex-wrap:wrap;gap:4px;padding:0.4rem;background:rgba(0,0,0,0.2);border-radius:8px;min-height:90px}
 /* BLACKJACK */
-.bj-area{display:flex;flex-direction:column;gap:1rem}
-.bj-dealer,.bj-player{background:rgba(0,0,0,0.25);border-radius:10px;padding:1rem}
-.bj-label{font-size:0.85rem;color:#90EE90;margin-bottom:0.5rem}
-.bj-cards{display:flex;gap:6px;flex-wrap:wrap}
-.bj-score{font-size:0.9rem;color:#FFD700;margin-top:0.4rem}
-.bj-bet-area{background:rgba(0,0,0,0.25);border-radius:10px;padding:1rem;text-align:center}
-.chip{display:inline-block;width:44px;height:44px;border-radius:50%;border:3px solid;cursor:pointer;font-weight:700;font-size:0.75rem;line-height:38px;text-align:center;margin:4px}
-.chip:hover{transform:scale(1.1)}
-
+.bj-zone{background:rgba(0,0,0,0.25);border-radius:10px;padding:0.75rem;margin-bottom:0.4rem}
+.bj-cards{display:flex;gap:5px;flex-wrap:wrap;margin-top:0.3rem}
+.chip{display:inline-block;width:42px;height:42px;border-radius:50%;border:3px solid #FFD700;cursor:pointer;font-weight:700;font-size:0.72rem;line-height:36px;text-align:center;margin:3px}
+.chip:active{transform:scale(0.9)}
 /* OLD MAID */
-.om-table{display:flex;flex-direction:column;gap:0.5rem}
-.om-others{display:flex;gap:1rem;margin-bottom:0.5rem;flex-wrap:wrap}
-.om-other{background:rgba(0,0,0,0.3);border-radius:8px;padding:0.5rem;flex:1;min-width:100px;text-align:center}
-.om-hand{display:flex;flex-wrap:wrap;gap:4px;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:8px;min-height:100px}
-.om-pick{display:flex;flex-wrap:wrap;gap:4px;padding:0.5rem;background:rgba(0,0,0,0.15);border-radius:8px;min-height:90px;align-items:center;justify-content:center}
-.om-pick .card{cursor:pointer}
-.om-pick .card:hover{transform:translateY(-8px)}
+.om-others{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.4rem}
+.om-other{background:rgba(0,0,0,0.3);border-radius:8px;padding:0.4rem;flex:1;min-width:85px;text-align:center}
+.om-hand{display:flex;flex-wrap:wrap;gap:4px;padding:0.4rem;background:rgba(0,0,0,0.2);border-radius:8px;min-height:85px}
 </style>
 </head>
 <body>
-
+<div id="app">
 <div id="main-menu">
   <div class="menu-title">♠ 撲克牌遊戲合集 ♠</div>
   <div class="menu-sub">選擇一款遊戲開始</div>
   <div class="game-cards">
-    <div class="game-card" onclick="startGame('solitaire')">
-      <div class="game-icon">🃏</div>
-      <div class="game-name">接龍</div>
-      <div class="game-desc">Klondike 單人接龍</div>
-    </div>
-    <div class="game-card" onclick="startGame('bigtwo')">
-      <div class="game-icon">♠</div>
-      <div class="game-name">大老二</div>
-      <div class="game-desc">與 AI 對戰出牌</div>
-    </div>
-    <div class="game-card" onclick="startGame('blackjack')">
-      <div class="game-icon">🎰</div>
-      <div class="game-name">21點</div>
-      <div class="game-desc">對莊家挑戰</div>
-    </div>
-    <div class="game-card" onclick="startGame('oldmaid')">
-      <div class="game-icon">👻</div>
-      <div class="game-name">抽鬼牌</div>
-      <div class="game-desc">四人抽牌配對</div>
-    </div>
+    <div class="game-card" onclick="startGame('solitaire')"><div class="game-icon">🃏</div><div class="game-name">接龍</div><div class="game-desc">Klondike 單人接龍</div></div>
+    <div class="game-card" onclick="startGame('bigtwo')"><div class="game-icon">♠</div><div class="game-name">大老二</div><div class="game-desc">與 AI 對戰出牌</div></div>
+    <div class="game-card" onclick="startGame('blackjack')"><div class="game-icon">🎰</div><div class="game-name">21點</div><div class="game-desc">對莊家挑戰</div></div>
+    <div class="game-card" onclick="startGame('oldmaid')"><div class="game-icon">👻</div><div class="game-name">抽鬼牌</div><div class="game-desc">四人抽牌配對</div></div>
   </div>
 </div>
-
 <div id="game-area">
   <div class="game-header">
-    <button class="back-btn" onclick="goMenu()">← 主選單</button>
+    <button class="back-btn" onclick="goMenu()">← 返回</button>
     <div class="game-title" id="gtitle"></div>
-    <div id="game-info" style="margin-left:auto;font-size:0.85rem;color:#aed6ae"></div>
+    <div id="game-info"></div>
   </div>
   <div id="game-content"></div>
 </div>
-
+</div>
 <script>
-// ===== UTILS =====
-const SUITS=['♠','♥','♦','♣'];
-const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const SUITS=['♠','♥','♦','♣'],RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const isRed=s=>s==='♥'||s==='♦';
-
-function makeDeck(joker=false){
-  let d=[];
-  for(let s of SUITS) for(let r of RANKS) d.push({s,r});
-  if(joker) d.push({s:'🃏',r:'Joker',joker:true});
-  return d;
-}
+function makeDeck(joker=false){let d=[];for(let s of SUITS)for(let r of RANKS)d.push({s,r});if(joker)d.push({s:'🃏',r:'Joker',joker:true});return d;}
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-
-function cardHTML(c,extra=''){
-  if(!c) return `<div class="card face-down ${extra}"></div>`;
-  if(c.joker) return `<div class="card red ${extra}" style="align-items:center;justify-content:center;"><span style="font-size:1.5rem">🃏</span></div>`;
-  const cl=isRed(c.s)?'red':'black';
-  return `<div class="card ${cl} ${extra}"><span>${c.r}</span><span>${c.s}</span><span class="suit-center">${c.s}</span></div>`;
+function cHTML(c,cls=''){
+  if(!c)return`<div class="card face-down ${cls}"></div>`;
+  if(c.joker)return`<div class="card red ${cls}" style="align-items:center;justify-content:center"><span style="font-size:1.3rem">🃏</span></div>`;
+  return`<div class="card ${isRed(c.s)?'red':'black'} ${cls}"><span>${c.r}</span><span>${c.s}</span><span class="sc">${c.s}</span></div>`;
 }
-function cardHTMLSmall(c,extra=''){
-  if(!c) return `<div class="card small face-down ${extra}"></div>`;
-  const cl=isRed(c.s)?'red':'black';
-  return `<div class="card small ${cl} ${extra}"><span>${c.r}</span><span>${c.s}</span><span class="suit-center">${c.s}</span></div>`;
+function cHTMLsm(c,cls=''){
+  if(!c)return`<div class="card sm face-down ${cls}"></div>`;
+  return`<div class="card sm ${isRed(c.s)?'red':'black'} ${cls}"><span>${c.r}</span><span>${c.s}</span><span class="sc">${c.s}</span></div>`;
 }
-
-function goMenu(){
-  document.getElementById('main-menu').style.display='flex';
-  document.getElementById('game-area').style.display='none';
-  currentGame=null;
-}
+let currentGame=null;
+function goMenu(){document.getElementById('main-menu').style.display='flex';document.getElementById('game-area').style.display='none';currentGame=null;}
 function startGame(g){
   document.getElementById('main-menu').style.display='none';
   document.getElementById('game-area').style.display='flex';
   currentGame=g;
-  if(g==='solitaire'){document.getElementById('gtitle').textContent='接龍';initSolitaire();}
-  else if(g==='bigtwo'){document.getElementById('gtitle').textContent='大老二';initBigTwo();}
-  else if(g==='blackjack'){document.getElementById('gtitle').textContent='21點';initBlackjack();}
-  else if(g==='oldmaid'){document.getElementById('gtitle').textContent='抽鬼牌';initOldMaid();}
+  const titles={solitaire:'接龍',bigtwo:'大老二',blackjack:'21點',oldmaid:'抽鬼牌'};
+  document.getElementById('gtitle').textContent=titles[g];
+  if(g==='solitaire')initSol();else if(g==='bigtwo')initBT();else if(g==='blackjack')initBJ();else initOM();
 }
-let currentGame=null;
 
-// ===== BLACKJACK =====
-let bjState={};
-function initBlackjack(){
-  bjState={deck:shuffle(makeDeck()),dealer:[],player:[],bet:0,chips:200,phase:'bet',dealerHidden:true};
-  renderBJ();
+// ── SOLITAIRE ──
+let SS={};
+const SRANK=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+function sRank(r){return SRANK.indexOf(r);}
+function sCanStack(card,onto){if(!onto)return card.r==='K';return isRed(onto.s)!==isRed(card.s)&&sRank(card.r)===sRank(onto.r)-1;}
+function sCanFnd(card,f){if(!f.cards.length)return card.r==='A'&&card.s===f.s;const top=f.cards[f.cards.length-1];return card.s===f.s&&sRank(card.r)===sRank(top.r)+1;}
+function initSol(){
+  let deck=shuffle(makeDeck()),tab=[];
+  for(let i=0;i<7;i++){let col=[];for(let j=0;j<=i;j++)col.push({...deck.pop(),face:j===i});tab.push(col);}
+  SS={deck,waste:[],fnd:[{s:'♠',cards:[]},{s:'♥',cards:[]},{s:'♦',cards:[]},{s:'♣',cards:[]}],tab,sel:null,moves:0,phase:'play'};
+  renderSol();
 }
-function bjVal(cards,hidden=false){
-  let vals=cards.filter((c,i)=>!(hidden&&i===1)).map(c=>{
-    if(['J','Q','K'].includes(c.r)) return 10;
-    if(c.r==='A') return 11;
-    return parseInt(c.r)||0;
-  });
-  let sum=vals.reduce((a,b)=>a+b,0);
-  let aces=cards.filter((c,i)=>c.r==='A'&&!(hidden&&i===1)).length;
-  while(sum>21&&aces>0){sum-=10;aces--;}
-  return sum;
+function sSelCards(){if(!SS.sel)return[];if(SS.sel.from==='waste')return[SS.waste[SS.waste.length-1]];return SS.tab[SS.sel.col].slice(SS.sel.row);}
+function sRemoveSel(){if(SS.sel.from==='waste'){SS.waste.pop();return;}SS.tab[SS.sel.col]=SS.tab[SS.sel.col].slice(0,SS.sel.row);}
+function sFlip(){SS.tab.forEach(col=>{if(col.length&&!col[col.length-1].face)col[col.length-1].face=true;});}
+function sCheckWin(){if(SS.fnd.every(f=>f.cards.length===13)){SS.phase='win';renderSol();}}
+function solClickStock(){SS.sel=null;if(SS.deck.length)SS.waste.push({...SS.deck.pop(),face:true});else{SS.deck=SS.waste.slice().reverse().map(c=>({...c,face:false}));SS.waste=[];}SS.moves++;renderSol();}
+function solClickWaste(){if(!SS.waste.length)return;SS.sel=SS.sel&&SS.sel.from==='waste'?null:{from:'waste'};renderSol();}
+function solClickFnd(fi){
+  if(SS.sel){const cards=sSelCards();if(cards.length===1&&sCanFnd(cards[0],SS.fnd[fi])){sRemoveSel();SS.fnd[fi].cards.push(cards[0]);SS.sel=null;SS.moves++;sFlip();renderSol();sCheckWin();return;}SS.sel=null;renderSol();}
 }
-function bjDeal(){
-  if(bjState.bet===0){document.getElementById('bj-msg').textContent='請先下注！';return;}
-  bjState.phase='play';
-  bjState.dealer=[bjState.deck.pop(),bjState.deck.pop()];
-  bjState.player=[bjState.deck.pop(),bjState.deck.pop()];
-  bjState.dealerHidden=true;
-  renderBJ();
-}
-function bjHit(){
-  bjState.player.push(bjState.deck.pop());
-  if(bjVal(bjState.player)>21){bjEndGame('bust');return;}
-  renderBJ();
-}
-function bjStand(){bjReveal();bjDealerPlay();}
-function bjReveal(){bjState.dealerHidden=false;}
-function bjDealerPlay(){
-  while(bjVal(bjState.dealer)<17) bjState.dealer.push(bjState.deck.pop());
-  const ps=bjVal(bjState.player),ds=bjVal(bjState.dealer);
-  if(ds>21||ps>ds) bjEndGame('win');
-  else if(ps===ds) bjEndGame('push');
-  else bjEndGame('lose');
-}
-function bjEndGame(res){
-  bjState.dealerHidden=false;
-  bjState.phase='end';
-  if(res==='bust'){bjState.chips-=bjState.bet;}
-  else if(res==='win'){bjState.chips+=bjState.bet;}
-  else if(res==='push'){}
-  else{bjState.chips-=bjState.bet;}
-  bjState.lastResult=res;
-  renderBJ();
-}
-function bjBet(n){
-  if(bjState.phase!=='bet') return;
-  if(bjState.chips>=n){bjState.bet=Math.min(bjState.bet+n,bjState.chips);}
-  renderBJ();
-}
-function bjClearBet(){bjState.bet=0;renderBJ();}
-function bjNewRound(){bjState.bet=0;bjState.phase='bet';bjState.dealer=[];bjState.player=[];renderBJ();}
-function renderBJ(){
-  const s=bjState;
-  document.getElementById('game-info').textContent=`籌碼: ${s.chips}`;
-  let dScore=s.dealerHidden?bjVal(s.dealer,true):'?';
-  if(!s.dealerHidden) dScore=bjVal(s.dealer);
-  let msg='';
-  if(s.phase==='end'){
-    const r={win:'🎉 你贏了！',lose:'😞 你輸了',push:'🤝 平局',bust:'💥 爆牌了！'};
-    msg=`<div class="msg-box" style="font-size:1.1rem">${r[s.lastResult]||''} ${s.lastResult==='win'?'+'+s.bet:s.lastResult==='push'?'±0':'-'+s.bet} 籌碼</div>`;
+function solClickTab(ci,ri){
+  const col=SS.tab[ci];
+  if(ri===-1){if(SS.sel){const cards=sSelCards();if(sCanStack(cards[0],null)){sRemoveSel();SS.tab[ci].push(...cards);SS.sel=null;SS.moves++;sFlip();}else SS.sel=null;renderSol();}return;}
+  const card=col[ri];
+  if(!card||!card.face){SS.sel=null;renderSol();return;}
+  if(SS.sel){
+    if(SS.sel.from==='tableau'&&SS.sel.col===ci&&SS.sel.row===ri){SS.sel=null;renderSol();return;}
+    const cards=sSelCards();
+    if(sCanStack(cards[0],col.length?col[col.length-1]:null)){sRemoveSel();SS.tab[ci].push(...cards);SS.sel=null;SS.moves++;sFlip();renderSol();return;}
+    SS.sel={from:'tableau',col:ci,row:ri};renderSol();return;
   }
-  let dealerCards=s.dealer.map((c,i)=>s.dealerHidden&&i===1?cardHTML(null):cardHTML(c)).join('');
-  let playerCards=s.player.map(c=>cardHTML(c)).join('');
-  let chips_r=[1,5,10,25,50,100].filter(v=>v<=s.chips);
-  let chipsHTML=chips_r.map(v=>`<div class="chip" style="background:${['#888','#1a6b1a','#000080','#8B0000','#4B0082','#8B6914'][chips_r.indexOf(v)]};border-color:#FFD700;color:#fff" onclick="bjBet(${v})">${v}</div>`).join('');
-  document.getElementById('game-content').innerHTML=`
-  <div class="bj-area">
-    <div class="bj-dealer"><div class="bj-label">莊家 ${s.dealerHidden?'(?)':'('+bjVal(s.dealer)+')'}</div><div class="bj-cards">${dealerCards}</div></div>
-    <div class="bj-player"><div class="bj-label">你的手牌 (${s.player.length?bjVal(s.player):''})</div><div class="bj-cards">${playerCards}</div></div>
-    ${msg}
-    <div class="bj-bet-area">
-      <div style="margin-bottom:0.5rem">下注：<span style="color:#FFD700;font-size:1.1rem;font-weight:700">${s.bet}</span> / 籌碼：${s.chips}</div>
-      ${s.phase==='bet'?`<div>${chipsHTML}</div><div style="margin-top:0.5rem"><button class="btn" onclick="bjClearBet()">清除</button><button class="btn green" onclick="bjDeal()">發牌</button></div>`:''}
-      ${s.phase==='play'?`<button class="btn green" onclick="bjHit()">要牌</button><button class="btn red" onclick="bjStand()">停牌</button>`:''}
-      ${s.phase==='end'?`<button class="btn green" onclick="bjNewRound()">${s.chips>0?'下一局':'重新開始'}</button>${s.chips<=0?`<script>bjState.chips=200;<\/script>`:''}`:''}
+  SS.sel={from:'tableau',col:ci,row:ri};renderSol();
+}
+function solAuto(){
+  sFlip();let moved=true;
+  while(moved){moved=false;
+    SS.tab.forEach(col=>{if(!col.length)return;const c=col[col.length-1];SS.fnd.forEach(f=>{if(!moved&&sCanFnd(c,f)){col.pop();f.cards.push(c);moved=true;}});});
+    if(SS.waste.length){const c=SS.waste[SS.waste.length-1];SS.fnd.forEach(f=>{if(!moved&&sCanFnd(c,f)){SS.waste.pop();f.cards.push(c);moved=true;}});}
+  }
+  renderSol();sCheckWin();
+}
+function renderSol(){
+  const s=SS;
+  document.getElementById('game-info').textContent='移動:'+s.moves;
+  const selWaste=!!(s.sel&&s.sel.from==='waste');
+  const vFnd=[],vTab=[];
+  if(s.sel){const cards=sSelCards();if(cards&&cards.length){const first=cards[0];if(cards.length===1)s.fnd.forEach((f,fi)=>{if(sCanFnd(first,f))vFnd.push(fi);});s.tab.forEach((col,ci)=>{if(s.sel.from==='tableau'&&s.sel.col===ci)return;if(sCanStack(first,col.length?col[col.length-1]:null))vTab.push(ci);});}}
+  let fHTML=s.fnd.map((f,fi)=>{const top=f.cards.length?f.cards[f.cards.length-1]:null;const ht=vFnd.includes(fi);const glow=ht?'filter:drop-shadow(0 0 7px #FFD700)':'';const bdr=ht?'border:3px solid #FFD700;':'';return top?`<div onclick="solClickFnd(${fi})" style="cursor:pointer;${glow}">${cHTML(top)}</div>`:`<div onclick="solClickFnd(${fi})" class="fslot" style="${bdr}">${f.s}</div>`;}).join('');
+  const stockHTML=`<div class="stock" onclick="solClickStock()">${s.deck.length?'🂠':'↺'}</div>`;
+  const wasteHTML=s.waste.length?`<div onclick="solClickWaste()">${cHTML(s.waste[s.waste.length-1],selWaste?'selected':'')}</div>`:`<div class="fslot" onclick="solClickWaste()"></div>`;
+  const tabHTML=s.tab.map((col,ci)=>{const ht=vTab.includes(ci);if(!col.length){const bdr=ht?'border:3px solid #FFD700;background:rgba(255,215,0,0.12)':'';return`<div class="tcol"><div class="fslot" onclick="solClickTab(${ci},-1)" style="${bdr}">K</div></div>`;}
+    const cards=col.map((c,ri)=>{const isSel=!!(s.sel&&s.sel.from==='tableau'&&s.sel.col===ci&&s.sel.row<=ri);const isTop=ht&&ri===col.length-1;if(!c.face)return`<div class="cw" onclick="solClickTab(${ci},${ri})">${cHTML(null)}</div>`;return`<div class="cw" onclick="solClickTab(${ci},${ri})" style="${isTop?'filter:drop-shadow(0 0 7px #FFD700)':''}">${cHTML(c,isSel?'selected':'')}</div>`;}).join('');
+    return`<div class="tcol">${cards}</div>`;}).join('');
+  const winMsg=s.phase==='win'?`<div class="msg-box" style="color:#FFD700">🎉 過關！共 ${s.moves} 步</div>`:'';
+  document.getElementById('game-content').innerHTML=`${winMsg}
+    <div class="sol-top"><div class="sol-foundations">${fHTML}</div><div class="stock-waste">${stockHTML}${wasteHTML}</div></div>
+    <div class="tableau">${tabHTML}</div>
+    <div style="margin-top:0.5rem;display:flex;gap:0.4rem">
+      ${s.phase!=='win'?`<button class="btn" onclick="solAuto()">自動完成</button><button class="btn r" onclick="initSol()">重開</button>`:`<button class="btn g" onclick="initSol()">新遊戲</button>`}
     </div>
-  </div>`;
-  if(s.chips<=0&&s.phase==='end'){bjState.chips=200;}
+    <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:0.3rem">點牌選取→金色光暈處放置</div>`;
 }
 
-// ===== OLD MAID =====
-let omState={};
-function initOldMaid(){
-  let deck=makeDeck(true);
-  shuffle(deck);
-  let hands=[[],[],[],[]];
-  deck.forEach((c,i)=>hands[i%4].push(c));
-  hands=hands.map(h=>discardPairs(h));
-  omState={hands,turn:0,phase:'play',finished:[],msg:'遊戲開始！輪到你抽牌',drawFrom:null,candidates:[]};
-  renderOM();
+// ── BLACKJACK ──
+let BJ={};
+const BJ_TASKS=[
+  {desc:'用剛好 5 張牌達到 21 點',bonus:80,check:(p)=>p.length===5&&bjVal(p)===21},
+  {desc:'拿到黑傑克（前兩張21點）',bonus:60,check:(p)=>p.length===2&&bjVal(p)===21},
+  {desc:'連贏 2 局',bonus:50,check:null},
+  {desc:'以 20 點贏莊家',bonus:40,check:(p)=>bjVal(p)===20},
+  {desc:'用 4 張以上的牌贏莊家',bonus:50,check:(p)=>p.length>=4},
+  {desc:'不要牌直接贏莊家',bonus:45,check:(p)=>p.length===2},
+  {desc:'莊家爆牌獲勝',bonus:35,check:null},
+];
+function bjPickTask(){return BJ_TASKS[Math.floor(Math.random()*BJ_TASKS.length)];}
+function initBJ(){BJ={deck:shuffle(makeDeck()),dealer:[],player:[],bet:0,chips:200,phase:'bet',streak:0,task:bjPickTask(),taskDone:false};renderBJ();}
+function bjVal(cards,hide=false){
+  let s=0,a=0;
+  cards.forEach((c,i)=>{if(!c)return;if(hide&&i===1)return;if(['J','Q','K'].includes(c.r))s+=10;else if(c.r==='A'){s+=11;a++;}else s+=parseInt(c.r)||0;});
+  while(s>21&&a>0){s-=10;a--;}return s;
 }
-function discardPairs(hand){
-  let changed=true;
-  while(changed){
-    changed=false;
-    for(let i=0;i<hand.length;i++){
-      for(let j=i+1;j<hand.length;j++){
-        if(hand[i].r===hand[j].r&&!hand[i].joker&&!hand[j].joker){
-          hand.splice(j,1);hand.splice(i,1);changed=true;break;
-        }
-      }
-      if(changed) break;
-    }
+function bjRefill(){if(BJ.deck.length<5)BJ.deck=[...BJ.deck,...shuffle(makeDeck())];}
+function bjDeal(){if(!BJ.bet)return;bjRefill();BJ.phase='play';BJ.dealer=[BJ.deck.pop(),BJ.deck.pop()];BJ.player=[BJ.deck.pop(),BJ.deck.pop()];renderBJ();}
+function bjHit(){bjRefill();BJ.player.push(BJ.deck.pop());if(bjVal(BJ.player)>21)bjEnd('bust');else renderBJ();}
+function bjStand(){while(bjVal(BJ.dealer)<17)BJ.dealer.push(BJ.deck.pop());const p=bjVal(BJ.player),d=bjVal(BJ.dealer);bjEnd(d>21||p>d?'win':p===d?'push':'lose');}
+function bjEnd(r){
+  BJ.phase='end';BJ.result=r;
+  if(r==='win')BJ.streak++;else if(r==='lose'||r==='bust')BJ.streak=0;
+  let multi=BJ.streak>=5?2:BJ.streak>=3?1.5:1;
+  const gain=Math.round(BJ.bet*multi);
+  if(r==='win')BJ.chips+=gain;else if(r!=='push')BJ.chips-=BJ.bet;
+  if(BJ.chips<=0)BJ.chips=200;
+  BJ.lastGain=r==='win'?gain:r==='push'?0:-BJ.bet;BJ.lastMulti=multi;
+  const t=BJ.task;
+  if(!BJ.taskDone&&t){
+    if(t.desc.includes('連贏 2 局')&&BJ.streak>=2){BJ.taskDone=true;BJ.chips+=t.bonus;}
+    else if(t.desc.includes('莊家爆牌')&&r==='win'&&bjVal(BJ.dealer)>21){BJ.taskDone=true;BJ.chips+=t.bonus;}
+    else if(t.check&&r==='win'&&t.check(BJ.player)){BJ.taskDone=true;BJ.chips+=t.bonus;}
   }
-  return hand;
+  renderBJ();
 }
-function omDraw(cardIdx){
-  if(omState.turn!==0||omState.drawFrom===null) return;
-  const from=omState.drawFrom;
-  const card=omState.hands[from][cardIdx];
-  omState.hands[0].push(card);
-  omState.hands[from].splice(cardIdx,1);
-  omState.hands[0]=discardPairs(omState.hands[0]);
-  if(omState.hands[0].length===0) omState.finished.push(0);
-  omState.msg=`你抽到了 ${card.joker?'鬼牌':card.r+card.s}`;
-  omState.drawFrom=null;
-  omState.turn=1;
-  renderOM();
-  if(!omState.finished.includes(1)) setTimeout(aiTurn,1200);
-  else{omState.turn=2;setTimeout(aiTurn,1200);}
-}
-function aiTurn(){
-  const turn=omState.turn;
-  if(omState.finished.includes(turn)){omState.turn=(turn%3)+1;if(omState.turn===0)omState.turn=1;setTimeout(aiTurn,600);return;}
-  const prev=(turn+3-1)%4||3;
-  let drawFrom=(turn-1+4)%4;
-  if(drawFrom===0) drawFrom=0;
-  // find a valid source
-  let sources=[drawFrom,(drawFrom+1)%4,(drawFrom+2)%4].filter(x=>x!==turn&&!omState.finished.includes(x)&&omState.hands[x].length>0);
-  if(sources.length===0){
-    omState.turn=(turn+1)%4;
-    if(omState.turn===0) omState.turn=0;
-    setTimeout(()=>{if(omState.turn===0){omState.drawFrom=null;renderOM();}else setTimeout(aiTurn,600);},600);
-    return;
+function bjBet(n){if(BJ.phase!=='bet')return;BJ.bet=Math.min(BJ.bet+n,BJ.chips);renderBJ();}
+function bjClear(){BJ.bet=0;renderBJ();}
+function bjNext(){BJ.bet=0;BJ.phase='bet';BJ.dealer=[];BJ.player=[];if(BJ.taskDone){BJ.task=bjPickTask();BJ.taskDone=false;}renderBJ();}
+function renderBJ(){
+  const s=BJ;
+  document.getElementById('game-info').textContent='籌碼:'+s.chips;
+  const dCards=s.dealer.map((c,i)=>s.phase==='play'&&i===1?cHTML(null):cHTML(c)).join('');
+  const pCards=s.player.map(c=>cHTML(c)).join('');
+  let resHTML='';
+  if(s.phase==='end'){
+    const rm={win:'🎉 你贏了！',lose:'😞 你輸了',push:'🤝 平局',bust:'💥 爆牌！'};
+    const gain=s.lastGain>0?`<span style="color:#4cff4c">+${s.lastGain}</span>`:s.lastGain<0?`<span style="color:#ff6b6b">${s.lastGain}</span>`:'±0';
+    const multiMsg=s.lastMulti>1?` <span style="color:#FFD700;font-size:0.8rem">×${s.lastMulti}連勝！</span>`:'';
+    resHTML=`<div class="msg-box">${rm[s.result]} ${gain}${multiMsg}</div>`;
+    if(s.taskDone)resHTML+=`<div class="msg-box" style="color:#FFD700">🏆 任務完成 +${s.task.bonus}籌碼！</div>`;
   }
-  let src=sources[0];
-  let idx=Math.floor(Math.random()*omState.hands[src].length);
-  const card=omState.hands[src][idx];
-  omState.hands[turn].push(card);
-  omState.hands[src].splice(idx,1);
-  omState.hands[turn]=discardPairs(omState.hands[turn]);
-  const names=['你','玩家B','玩家C','玩家D'];
-  omState.msg=`${names[turn]} 從 ${names[src]} 抽了一張牌`;
-  if(omState.hands[turn].length===0) omState.finished.push(turn);
-  let next=(turn+1)%4;
-  omState.turn=next;
-  renderOM();
-  if(checkOMEnd()) return;
-  if(next===0){omState.drawFrom=src;renderOM();}
-  else setTimeout(aiTurn,1000);
-}
-function checkOMEnd(){
-  const all=[0,1,2,3].filter(i=>!omState.finished.includes(i));
-  if(all.length<=1){
-    const loser=all[0];
-    const names=['你','玩家B','玩家C','玩家D'];
-    omState.phase='end';
-    omState.msg=`遊戲結束！${names[loser]||'無人'} 拿到鬼牌，輸了！`;
-    renderOM();
-    return true;
-  }
-  return false;
-}
-function renderOM(){
-  const s=omState;
-  const names=['你','玩家B','玩家C','玩家D'];
-  let othersHTML=s.hands.slice(1).map((h,i)=>{
-    const idx=i+1;
-    const done=s.finished.includes(idx);
-    return `<div class="om-other" style="${done?'opacity:0.4':''}">
-      <div class="bt-other-name">${names[idx]} ${done?'✅':''}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center">${h.map(()=>`<div class="card small face-down"></div>`).join('')}</div>
-      <div style="font-size:0.8rem;color:#FFD700;margin-top:3px">${h.length}張</div>
-    </div>`;
-  }).join('');
-
-  let playerCards=s.hands[0].map((c,i)=>cardHTML(c)).join('');
-  let pickArea='';
-  if(s.drawFrom!==null&&s.turn===0&&s.phase==='play'){
-    const src=s.drawFrom;
-    pickArea=`<div style="margin:0.5rem 0;color:#90EE90;font-size:0.9rem">從 ${names[src]} 抽一張牌：</div>
-    <div class="om-pick">${s.hands[src].map((c,i)=>`<div onclick="omDraw(${i})">${cardHTML(null)}</div>`).join('')}</div>`;
-  }
-  let endBtn=s.phase==='end'?`<button class="btn green" onclick="initOldMaid()">再玩一次</button>`:'';
+  const sc=s.streak>=5?'#ff4cff':s.streak>=3?'#FFD700':s.streak>=1?'#90EE90':'rgba(255,255,255,0.3)';
+  const chips_v=[1,5,10,25,50,100].filter(v=>v<=s.chips);
+  const chipColors=['#888','#1a6b1a','#000080','#8B0000','#4B0082','#8B6914'];
   document.getElementById('game-content').innerHTML=`
-  <div class="om-table">
-    <div class="om-others">${othersHTML}</div>
-    <div class="msg-box">${s.msg}</div>
-    ${pickArea}
-    <div style="color:#90EE90;font-size:0.85rem;margin-top:0.5rem">你的手牌 (${s.finished.includes(0)?'✅ 已出完':s.hands[0].length+'張'})：</div>
-    <div class="om-hand">${playerCards}</div>
-    ${endBtn}
-  </div>`;
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem">
+      <span style="font-size:0.8rem;color:${sc}">🔥 連勝：${s.streak}${s.streak>=5?' (×2)':s.streak>=3?' (×1.5)':''}</span>
+    </div>
+    ${s.task?`<div style="background:rgba(0,0,0,0.3);border-radius:7px;padding:0.4rem 0.6rem;margin-bottom:0.4rem;font-size:0.8rem">🎯 <span style="color:${s.taskDone?'#FFD700':'#90EE90'}">${s.task.desc}</span> <span style="color:#aed6ae">(+${s.task.bonus})</span>${s.taskDone?' ✅':''}</div>`:''}
+    <div class="bj-zone"><div style="font-size:0.8rem;color:#90EE90">莊家 (${s.phase==='play'?'?':bjVal(s.dealer)})</div><div class="bj-cards">${dCards}</div></div>
+    <div class="bj-zone"><div style="font-size:0.8rem;color:#90EE90">你的手牌 (${s.player.length?bjVal(s.player):''})</div><div class="bj-cards">${pCards}</div></div>
+    ${resHTML}
+    <div class="bj-zone" style="text-align:center">
+      <div style="margin-bottom:0.4rem;font-size:0.85rem">下注：<span style="color:#FFD700;font-weight:700">${s.bet}</span></div>
+      ${s.phase==='bet'?`<div>${chips_v.map((v,i)=>`<div class="chip" style="background:${chipColors[i]};color:#fff" onclick="bjBet(${v})">${v}</div>`).join('')}</div><div style="margin-top:0.4rem"><button class="btn" onclick="bjClear()">清除</button><button class="btn g" onclick="bjDeal()">發牌</button></div>`:''}
+      ${s.phase==='play'?`<button class="btn g" onclick="bjHit()">要牌</button><button class="btn r" onclick="bjStand()">停牌</button>`:''}
+      ${s.phase==='end'?`<button class="btn g" onclick="bjNext()">下一局</button>`:''}
+    </div>`;
 }
 
-// ===== BIG TWO =====
-let btState={};
-const BT_RANK_ORDER=['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
-const BT_SUIT_ORDER=['♣','♦','♥','♠'];
-function btCardVal(c){return BT_RANK_ORDER.indexOf(c.r)*4+BT_SUIT_ORDER.indexOf(c.s);}
-function btCmp(a,b){return btCardVal(a)-btCardVal(b);}
-
-// 牌型判斷
-function btGetType(cards){
-  const n=cards.length;
-  const sorted=[...cards].sort(btCmp);
-  if(n===1) return {type:'single',key:btCardVal(sorted[0])};
-  if(n===2){
-    if(sorted[0].r===sorted[1].r) return {type:'pair',key:btCardVal(sorted[1])};
-    return null;
-  }
+// ── BIG TWO ──
+let BT={};
+const BTR=['3','4','5','6','7','8','9','10','J','Q','K','A','2'],BTS=['♣','♦','♥','♠'];
+function btV(c){return BTR.indexOf(c.r)*4+BTS.indexOf(c.s);}
+function btCmp(a,b){return btV(a)-btV(b);}
+function btType(cards){
+  const n=cards.length,s=[...cards].sort(btCmp);
+  if(n===1)return{t:'single',k:btV(s[0])};
+  if(n===2){if(s[0].r===s[1].r)return{t:'pair',k:btV(s[1])};return null;}
   if(n===5){
-    const ranks=sorted.map(c=>BT_RANK_ORDER.indexOf(c.r));
-    const suits=sorted.map(c=>c.s);
-    const isFlush=suits.every(s=>s===suits[0]);
-    // straight: 5 consecutive ranks (no wrap, exclude 2)
-    const noTwo=ranks.every(r=>r<12);
-    const isStraight=noTwo&&(ranks[4]-ranks[0]===4)&&new Set(ranks).size===5;
-    const counts={};
-    sorted.forEach(c=>{counts[c.r]=(counts[c.r]||0)+1;});
-    const vals=Object.values(counts).sort((a,b)=>b-a);
-    const isFullHouse=vals[0]===3&&vals[1]===2;
-    if(isFlush&&isStraight) return {type:'straight-flush',key:btCardVal(sorted[4])};
-    if(isFullHouse){
-      const trio=Object.keys(counts).find(r=>counts[r]===3);
-      return {type:'fullhouse',key:BT_RANK_ORDER.indexOf(trio)*4+3};
-    }
-    if(isStraight) return {type:'straight',key:btCardVal(sorted[4])};
-    return null;
+    const ri=s.map(c=>BTR.indexOf(c.r)),su=s.map(c=>c.s);
+    const flush=su.every(x=>x===su[0]),noTwo=ri.every(r=>r<12),straight=noTwo&&ri[4]-ri[0]===4&&new Set(ri).size===5;
+    const cnt={};s.forEach(c=>{cnt[c.r]=(cnt[c.r]||0)+1;});const cv=Object.values(cnt).sort((a,b)=>b-a);
+    if(flush&&straight)return{t:'sf',k:btV(s[4])};
+    if(cv[0]===3&&cv[1]===2){const trio=Object.keys(cnt).find(r=>cnt[r]===3);return{t:'fh',k:BTR.indexOf(trio)*4+3};}
+    if(straight)return{t:'str',k:btV(s[4])};return null;
   }
   return null;
 }
-
-const BT_TYPE_RANK={'single':0,'pair':1,'straight':2,'fullhouse':3,'straight-flush':4};
-
-function btValidPlay(cards,last){
-  if(last.length===0) return !!btGetType(cards);
-  if(cards.length!==last.length) return false;
-  const newT=btGetType(cards), oldT=btGetType(last);
-  if(!newT||!oldT) return false;
-  if(newT.type!==oldT.type) return false;
-  return newT.key>oldT.key;
+function btValid(cards,last){
+  if(!last.length)return!!btType(cards);if(cards.length!==last.length)return false;
+  const nt=btType(cards),ot=btType(last);if(!nt||!ot||nt.t!==ot.t)return false;return nt.k>ot.k;
 }
-function initBigTwo(){
-  let deck=makeDeck();shuffle(deck);
-  let hands=[[],[],[],[]];
-  deck.forEach((c,i)=>hands[i%4].push(c));
-  hands=hands.map(h=>h.sort(btCmp));
-  // find 3♦
-  let start=hands.findIndex(h=>h.some(c=>c.r==='3'&&c.s==='♣'));
-  btState={hands,turn:start,selected:[],lastPlayed:[],lastPlayer:-1,pass:[],msg:'遊戲開始！有♣3的玩家先出！',scores:[0,0,0,0],round:1,phase:'play',finished:[]};
-  renderBT();
+function initBT(){
+  let deck=makeDeck();shuffle(deck);let hands=[[],[],[],[]];
+  deck.forEach((c,i)=>hands[i%4].push(c));hands=hands.map(h=>h.sort(btCmp));
+  const start=hands.findIndex(h=>h.some(c=>c.r==='3'&&c.s==='♣'));
+  BT={hands,turn:start,sel:[],last:[],lastP:-1,pass:[],msg:'遊戲開始！有♣3的玩家先出！',phase:'play',done:[],first:true};
+  renderBT();if(start!==0)setTimeout(btAI,1000);
 }
-function btSelect(i){
-  if(btState.turn!==0) return;
-  const idx=btState.selected.indexOf(i);
-  if(idx===-1) btState.selected.push(i);
-  else btState.selected.splice(idx,1);
-  renderBT();
-}
+function btSel(i){if(BT.turn!==0)return;const idx=BT.sel.indexOf(i);if(idx===-1)BT.sel.push(i);else BT.sel.splice(idx,1);renderBT();}
 function btPlay(){
-  if(btState.turn!==0||btState.selected.length===0) return;
-  const cards=btState.selected.map(i=>btState.hands[0][i]).sort(btCmp);
-  const isFirstPlay=btState.lastPlayed.length===0&&btState.pass.length===0&&btState.lastPlayer===-1;
-  if(isFirstPlay&&!cards.some(c=>c.r==='3'&&c.s==='♣')){
-    btState.msg='第一手必須包含 ♣3！';renderBT();return;
-  }
-  if(!btValidPlay(cards,btState.lastPlayed)){
-    btState.msg='出牌無效！牌型或大小不符';renderBT();return;
-  }
-  btState.hands[0]=btState.hands[0].filter((_,i)=>!btState.selected.includes(i));
-  btState.lastPlayed=cards;btState.lastPlayer=0;btState.selected=[];btState.pass=[];
-  btState.msg=`你出了 ${cards.map(c=>c.r+c.s).join(' ')}`;
-  if(btState.hands[0].length===0){btEndRound();return;}
-  btState.turn=1;renderBT();setTimeout(btAI,1000);
+  if(BT.turn!==0||!BT.sel.length)return;
+  const cards=BT.sel.map(i=>BT.hands[0][i]).sort(btCmp);
+  if(BT.first&&!cards.some(c=>c.r==='3'&&c.s==='♣')){BT.msg='第一手必須包含 ♣3！';renderBT();return;}
+  if(!btValid(cards,BT.last)){BT.msg='出牌無效！';renderBT();return;}
+  BT.hands[0]=BT.hands[0].filter((_,i)=>!BT.sel.includes(i));
+  BT.last=cards;BT.lastP=0;BT.sel=[];BT.pass=[];BT.first=false;
+  BT.msg='你出了 '+cards.map(c=>c.r+c.s).join(' ');
+  if(!BT.hands[0].length){btEndRound();return;}
+  BT.turn=1;renderBT();setTimeout(btAI,1000);
 }
 function btPass(){
-  if(btState.turn!==0) return;
-  if(btState.lastPlayed.length===0){btState.msg='第一手必須出牌！';renderBT();return;}
-  btState.pass.push(0);
-  const alive=[0,1,2,3].filter(x=>!btState.finished.includes(x));
-  if(btState.pass.length>=alive.length-1){
-    btState.lastPlayed=[];btState.lastPlayer=-1;btState.pass=[];
-    btState.msg='全部過牌！新一輪，你先出';renderBT();return;
-  }
-  btState.msg='你過牌';btState.turn=1;renderBT();setTimeout(btAI,800);
+  if(BT.turn!==0)return;
+  if(BT.first){BT.msg='第一手必須出牌！';renderBT();return;}
+  if(!BT.last.length){BT.msg='目前無場牌，不能過牌！';renderBT();return;}
+  BT.pass.push(0);
+  const alive=[0,1,2,3].filter(x=>!BT.done.includes(x));
+  if(BT.pass.length>=alive.length-1){BT.last=[];BT.lastP=-1;BT.pass=[];BT.msg='全部過牌！新一輪';}
+  else BT.msg='你過牌';
+  BT.turn=1;renderBT();setTimeout(btAI,800);
 }
-
 function btAI(){
-  const turn=btState.turn;
-  if(btState.finished.includes(turn)){btNextTurn();return;}
-  const hand=[...btState.hands[turn]].sort(btCmp);
-  const isFirstPlay=btState.lastPlayed.length===0&&btState.pass.length===0&&btState.lastPlayer===-1;
-  let played=null;
-
-  if(isFirstPlay){
-    // 第一手：直接出♣3單張
-    const c3=hand.find(c=>c.r==='3'&&c.s==='♣');
-    if(c3) played=[c3];
-  } else {
-    const need=btState.lastPlayed.length||1;
-    // 生成組合（限制手牌數避免爆炸）
-    function combos(arr,k){
-      if(k===0) return [[]];
-      if(arr.length<k) return [];
-      const [first,...rest]=arr;
-      return combos(rest,k-1).map(c=>[first,...c]).concat(combos(rest,k));
-    }
-    // 手牌太多時只取前10張避免卡頓
-    const limited=hand.length>10?hand.slice(0,10):hand;
-    const candidates=combos(limited,need).filter(c=>btValidPlay(c,btState.lastPlayed));
-    if(candidates.length>0){
-      candidates.sort((a,b)=>btGetType(a).key-btGetType(b).key);
-      played=candidates[0];
-    }
+  const t=BT.turn;if(BT.phase!=='play')return;if(BT.done.includes(t)){btNext();return;}
+  const hand=[...BT.hands[t]].sort(btCmp);let played=null;
+  if(BT.first){const c3=hand.find(c=>c.r==='3'&&c.s==='♣');if(c3){played=[c3];BT.first=false;}}
+  else{
+    const need=BT.last.length||1;
+    if(need===1){for(const c of hand){if(btValid([c],BT.last)){played=[c];break;}}}
+    else if(need===2){outer2:for(let i=0;i<hand.length;i++)for(let j=i+1;j<hand.length;j++){if(btValid([hand[i],hand[j]],BT.last)){played=[hand[i],hand[j]];break outer2;}}}
+    else if(need===5){outer5:for(let i=0;i<=hand.length-5;i++)for(let j=i+1;j<hand.length;j++)for(let k=j+1;k<hand.length;k++)for(let l=k+1;l<hand.length;l++)for(let m=l+1;m<hand.length;m++){const cb=[hand[i],hand[j],hand[k],hand[l],hand[m]];if(btValid(cb,BT.last)){played=cb;break outer5;}}}
   }
   const names=['你','玩家B','玩家C','玩家D'];
-  if(played){
-    btState.hands[turn]=hand.filter(c=>!played.includes(c));
-    btState.lastPlayed=played;btState.lastPlayer=turn;btState.pass=[];
-    btState.msg=`${names[turn]} 出了 ${played.map(c=>c.r+c.s).join(' ')}`;
-    if(btState.hands[turn].length===0){btEndRound();return;}
-  }else{
-    btState.pass.push(turn);
-    btState.msg=`${names[turn]} 過牌`;
-    const alive=[0,1,2,3].filter(x=>!btState.finished.includes(x));
-    if(btState.pass.length>=alive.length-1){
-      btState.lastPlayed=[];btState.lastPlayer=-1;btState.pass=[];
-      btState.msg=`全部過牌！${names[(turn+1)%4]} 先出`;
-    }
-  }
-  btNextTurn();
+  if(played){BT.hands[t]=BT.hands[t].filter(c=>!played.includes(c));BT.last=played;BT.lastP=t;BT.pass=[];BT.msg=`${names[t]} 出了 ${played.map(c=>c.r+c.s).join(' ')}`;if(!BT.hands[t].length){btEndRound();return;}}
+  else{BT.pass.push(t);BT.msg=`${names[t]} 過牌`;const alive=[0,1,2,3].filter(x=>!BT.done.includes(x));if(BT.pass.length>=alive.length-1){BT.last=[];BT.lastP=-1;BT.pass=[];BT.msg='全部過牌！新一輪';}}
+  btNext();
 }
-function btNextTurn(){
-  let next=(btState.turn+1)%4;
-  while(btState.finished.includes(next)) next=(next+1)%4;
-  btState.turn=next;
-  renderBT();
-  if(next!==0) setTimeout(btAI,900);
-}
-function btEndRound(){
-  const names=['你','玩家B','玩家C','玩家D'];
-  const winner=[0,1,2,3].find(i=>btState.hands[i].length===0);
-  btState.msg=`🎉 ${names[winner]} 贏得這局！`;
-  btState.phase='end';renderBT();
-}
+function btNext(){let next=(BT.turn+1)%4;while(BT.done.includes(next))next=(next+1)%4;BT.turn=next;renderBT();if(next!==0)setTimeout(btAI,900);}
+function btEndRound(){const names=['你','玩家B','玩家C','玩家D'];const w=[0,1,2,3].find(i=>!BT.hands[i].length);BT.msg=`🎉 ${names[w]} 贏得這局！`;BT.phase='end';renderBT();}
 function renderBT(){
-  const s=btState;
-  const names=['你','玩家B','玩家C','玩家D'];
-  let othersHTML=s.hands.slice(1).map((h,i)=>{
-    const idx=i+1;
-    return `<div class="bt-other">
-      <div class="bt-other-name">${names[idx]} ${s.turn===idx?'⬅️ 出牌中':''} ${s.finished.includes(idx)?'✅':''} <span class="score-badge">${h.length}張</span></div>
-      <div style="display:flex;flex-wrap:wrap;gap:2px">${h.slice(0,10).map(()=>`<div class="card small face-down"></div>`).join('')}${h.length>10?`<span style="font-size:0.75rem;opacity:0.6">+${h.length-10}</span>`:''}</div>
-    </div>`;
-  }).join('');
-  let lastHTML=s.lastPlayed.length?s.lastPlayed.map(c=>cardHTML(c)).join(''):`<span style="color:rgba(255,255,255,0.3)">（尚無出牌）</span>`;
-  let playerCards=s.hands[0].map((c,i)=>`<div onclick="btSelect(${i})">${cardHTML(c,s.selected.includes(i)?'selected':'')}</div>`).join('');
-  let btns=s.phase==='play'&&s.turn===0?
-    `<button class="btn green" onclick="btPlay()">出牌 (${s.selected.length}張)</button><button class="btn" onclick="btPass()">過牌</button>`
-    :(s.phase==='end'?`<button class="btn green" onclick="initBigTwo()">再玩一次</button>`:'');
+  const s=BT,names=['你','玩家B','玩家C','玩家D'];
+  const othersHTML=s.hands.slice(1).map((h,i)=>{const idx=i+1;return`<div class="bt-other"><div style="font-size:0.75rem;color:#aed6ae">${names[idx]} ${s.turn===idx?'⬅️':''} ${s.done.includes(idx)?'✅':''} <span style="background:rgba(255,215,0,0.2);color:#FFD700;border-radius:3px;padding:1px 4px;font-size:0.7rem">${h.length}張</span></div><div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px">${h.slice(0,8).map(()=>cHTMLsm(null)).join('')}${h.length>8?`<span style="font-size:0.65rem;opacity:0.5">+${h.length-8}</span>`:''}</div></div>`;}).join('');
+  const lastHTML=s.last.length?s.last.map(c=>cHTML(c)).join(''):`<span style="color:rgba(255,255,255,0.3)">（尚無出牌）</span>`;
+  const playerCards=s.hands[0].map((c,i)=>`<div onclick="btSel(${i})">${cHTML(c,s.sel.includes(i)?'selected':'')}</div>`).join('');
+  const btns=s.phase==='play'&&s.turn===0?`<button class="btn g" onclick="btPlay()">出牌(${s.sel.length}張)</button><button class="btn" onclick="btPass()">過牌</button>`:s.phase==='end'?`<button class="btn g" onclick="initBT()">再玩一次</button>`:'';
   document.getElementById('game-content').innerHTML=`
-  <div>
     <div class="bt-others">${othersHTML}</div>
-    <div class="msg-box">${s.msg} ${s.turn===0&&s.phase==='play'?'<span style="color:#FFD700">— 輪到你！</span>':''}</div>
-    <div style="color:#90EE90;font-size:0.85rem;margin:0.3rem 0">場上出牌：</div>
+    <div class="msg-box">${s.msg}${s.turn===0&&s.phase==='play'?' <span style="color:#FFD700">輪到你！</span>':''}</div>
+    <div style="color:#90EE90;font-size:0.8rem;margin:0.3rem 0">場上出牌：</div>
     <div class="bt-played">${lastHTML}</div>
-    <div style="color:#90EE90;font-size:0.85rem;margin-top:0.5rem">你的手牌 (${s.hands[0].length}張)：點選選牌</div>
+    <div style="color:#90EE90;font-size:0.8rem;margin-top:0.4rem">你的手牌(${s.hands[0].length}張)：</div>
     <div class="bt-hand">${playerCards}</div>
-    <div style="margin-top:0.5rem">${btns}</div>
-  </div>`;
+    <div style="margin-top:0.4rem">${btns}</div>`;
 }
 
-// ===== SOLITAIRE =====
-let solState={};
-function initSolitaire(){
-  let deck=shuffle(makeDeck());
-  let tableau=[];
-  for(let i=0;i<7;i++){
-    let col=[];
-    for(let j=0;j<=i;j++) col.push({...deck.pop(),face:j===i});
-    tableau.push(col);
-  }
-  solState={deck,waste:[],foundations:[{s:'♠',cards:[]},{s:'♥',cards:[]},{s:'♦',cards:[]},{s:'♣',cards:[]}],tableau,selected:null,moves:0,phase:'play'};
-  renderSol();
+// ── OLD MAID ──
+let OM={};
+function omPairs(hand){let changed=true;while(changed){changed=false;for(let i=0;i<hand.length;i++){for(let j=i+1;j<hand.length;j++){if(!hand[i].joker&&!hand[j].joker&&hand[i].r===hand[j].r){hand.splice(j,1);hand.splice(i,1);changed=true;break;}}if(changed)break;}}return hand;}
+function omCheckDone(){[0,1,2,3].forEach(i=>{if(!OM.done.includes(i)&&!OM.hands[i].length)OM.done.push(i);});}
+function omSrc(turn){for(let o=1;o<=3;o++){const s=(turn+o)%4;if(!OM.done.includes(s)&&OM.hands[s].length)return s;}return null;}
+function initOM(){
+  let deck=makeDeck(true);shuffle(deck);let hands=[[],[],[],[]];
+  deck.forEach((c,i)=>hands[i%4].push(c));
+  hands[1]=omPairs(hands[1]);hands[2]=omPairs(hands[2]);hands[3]=omPairs(hands[3]);
+  OM={hands,turn:0,phase:'discard',done:[],msg:'請點選兩張相同數字的牌配對丟棄，完成後按「開始遊戲」',sel:null,src:null};
+  omCheckDone();renderOM();
 }
-function solCardRankVal(r){return ['A','2','3','4','5','6','7','8','9','10','J','Q','K'].indexOf(r);}
-function solCanStack(card,onto){
-  if(!onto) return card.r==='K';
-  const redOnto=isRed(onto.s),redCard=isRed(card.s);
-  return redOnto!==redCard && solCardRankVal(card.r)===solCardRankVal(onto.r)-1;
+function omSelCard(i){
+  if(OM.phase!=='discard'&&OM.phase!=='draw_discard')return;
+  const hand=OM.hands[0];
+  if(OM.sel===null){OM.sel=i;OM.msg='再點一張相同數字的牌配對';renderOM();return;}
+  const a=OM.sel,b=i;
+  if(a===b){OM.sel=null;OM.msg='請選兩張不同的牌';renderOM();return;}
+  const ca=hand[a],cb=hand[b];
+  if(!ca.joker&&!cb.joker&&ca.r===cb.r){const hi=Math.max(a,b),lo=Math.min(a,b);hand.splice(hi,1);hand.splice(lo,1);OM.sel=null;OM.msg=`配對成功！丟掉 ${ca.r}${ca.s} 和 ${cb.r}${cb.s}`;omCheckDone();}
+  else{OM.sel=null;OM.msg='數字不同，無法配對！';}
+  renderOM();
 }
-function solCanFoundation(card,f){
-  if(f.cards.length===0) return card.r==='A'&&card.s===f.s;
-  const top=f.cards[f.cards.length-1];
-  return card.s===f.s&&solCardRankVal(card.r)===solCardRankVal(top.r)+1;
+function omStartGame(){omCheckDone();OM.phase='play';OM.sel=null;omNextTurn(0);}
+function omDoneDrawDiscard(){OM.phase='play';omCheckDone();renderOM();setTimeout(()=>omNextTurn((OM.turn+1)%4),600);}
+function omNextTurn(t){
+  let turn=t,loops=0;while(OM.done.includes(turn)){turn=(turn+1)%4;if(++loops>4)return;}
+  OM.turn=turn;
+  const alive=[0,1,2,3].filter(i=>!OM.done.includes(i));if(alive.length<=1){omEnd();return;}
+  const src=omSrc(turn);if(src===null){omEnd();return;}
+  OM.src=src;
+  if(turn===0){OM.msg=`輪到你！點「${['','玩家B','玩家C','玩家D'][src]}」的牌背抽牌`;renderOM();}
+  else{OM.msg=`${['','玩家B','玩家C','玩家D'][turn]} 思考中...`;renderOM();setTimeout(()=>omAI(turn,src),1000);}
 }
-function solClick(type,col,row){
-  if(type==='stock'){
-    if(solState.deck.length>0){
-      let c={...solState.deck.pop(),face:true};
-      solState.waste.push(c);
-    }else{
-      solState.deck=solState.waste.reverse().map(c=>({...c,face:false}));
-      solState.waste=[];
-    }
-    solState.selected=null;renderSol();return;
-  }
-  if(type==='waste'){
-    if(solState.waste.length===0) return;
-    solState.selected={type:'waste',col:null,row:null};renderSol();return;
-  }
-  if(type==='foundation'){
-    if(solState.selected){
-      const card=getSelectedCard();
-      if(solCanFoundation(card,solState.foundations[col])){
-        removeSelected();
-        solState.foundations[col].cards.push(card);
-        solState.moves++;solState.selected=null;renderSol();checkSolWin();return;
-      }
-    }
-    solState.selected=null;renderSol();return;
-  }
-  if(type==='tableau'){
-    const c=solState.tableau[col];
-    if(row!==undefined&&!c[row].face){solState.selected=null;renderSol();return;}
-    if(solState.selected){
-      const card=getSelectedCard();
-      const onto=c.length>0?c[c.length-1]:null;
-      if(solCanStack(card,onto)){
-        let cards=getSelectedCards();
-        removeSelected();
-        solState.tableau[col].push(...cards);
-        solState.moves++;solState.selected=null;
-        flipTop();renderSol();return;
-      }
-    }
-    if(c.length>0&&c[row]&&c[row].face){
-      solState.selected={type:'tableau',col,row};renderSol();return;
-    }
-    solState.selected=null;renderSol();
-  }
+function omPlayerDraw(i){
+  if(OM.turn!==0||OM.phase!=='play')return;
+  const src=OM.src;if(src===null||!OM.hands[src].length)return;
+  const card=OM.hands[src][i];OM.hands[0].push(card);OM.hands[src].splice(i,1);
+  OM.msg=`你抽到了 ${card.joker?'👻 鬼牌':card.r+card.s}！若有配對請選牌丟棄，完成後按「完成配對」`;
+  OM.phase='draw_discard';OM.sel=null;omCheckDone();renderOM();
 }
-function getSelectedCard(){
-  const sel=solState.selected;
-  if(sel.type==='waste') return solState.waste[solState.waste.length-1];
-  return solState.tableau[sel.col][sel.row];
+function omAI(turn,src){
+  if(OM.phase!=='play')return;
+  const i=Math.floor(Math.random()*OM.hands[src].length);const card=OM.hands[src][i];
+  OM.hands[turn].push(card);OM.hands[src].splice(i,1);OM.hands[turn]=omPairs(OM.hands[turn]);
+  const names=['你','玩家B','玩家C','玩家D'];OM.msg=`${names[turn]} 從 ${names[src]} 抽了一張牌`;
+  omCheckDone();renderOM();setTimeout(()=>omNextTurn((turn+1)%4),600);
 }
-function getSelectedCards(){
-  const sel=solState.selected;
-  if(sel.type==='waste') return [solState.waste[solState.waste.length-1]];
-  return solState.tableau[sel.col].slice(sel.row);
+function omEnd(){
+  OM.phase='end';const alive=[0,1,2,3].filter(i=>!OM.done.includes(i));
+  const names=['你','玩家B','玩家C','玩家D'];
+  OM.msg=alive.length===1?`遊戲結束！${names[alive[0]]} 持有鬼牌，輸了！${alive[0]===0?'😢':'😄'}`:'遊戲結束！';
+  renderOM();
 }
-function removeSelected(){
-  const sel=solState.selected;
-  if(sel.type==='waste'){solState.waste.pop();return;}
-  solState.tableau[sel.col]=solState.tableau[sel.col].slice(0,sel.row);
-}
-function flipTop(){
-  solState.tableau.forEach(col=>{if(col.length>0&&!col[col.length-1].face) col[col.length-1].face=true;});
-}
-function checkSolWin(){
-  if(solState.foundations.every(f=>f.cards.length===13)){solState.phase='win';renderSol();}
-}
-function autoComplete(){
-  flipTop();
-  let moved=true;
-  while(moved){
-    moved=false;
-    for(let col=0;col<7;col++){
-      const c=solState.tableau[col];
-      if(c.length===0) continue;
-      const card=c[c.length-1];
-      for(let fi=0;fi<4;fi++){
-        if(solCanFoundation(card,solState.foundations[fi])){
-          c.pop();solState.foundations[fi].cards.push(card);moved=true;break;
-        }
-      }
-    }
-    if(solState.waste.length>0){
-      const card=solState.waste[solState.waste.length-1];
-      for(let fi=0;fi<4;fi++){
-        if(solCanFoundation(card,solState.foundations[fi])){
-          solState.waste.pop();solState.foundations[fi].cards.push(card);moved=true;break;
-        }
-      }
-    }
-  }
-  renderSol();checkSolWin();
-}
-function renderSol(){
-  const s=solState;
-  document.getElementById('game-info').textContent=`移動: ${s.moves}`;
-  let fHTML=s.foundations.map((f,i)=>`<div class="foundation" onclick="solClick('foundation',${i})">${f.cards.length?cardHTML(f.cards[f.cards.length-1]):(f.s)}</div>`).join('');
-  let stockHTML=`<div class="stock" onclick="solClick('stock')">${s.deck.length?'🂠':'↺'}</div>`;
-  let wasteHTML=s.waste.length?`<div onclick="solClick('waste')">${cardHTML(s.waste[s.waste.length-1],s.selected&&s.selected.type==='waste'?'selected':'')}</div>`:`<div class="foundation"></div>`;
-  let tabHTML=s.tableau.map((col,ci)=>`<div class="tableau-col">${
-    col.length===0?`<div class="foundation" onclick="solClick('tableau',${ci},0)" style="min-height:85px"></div>`:
-    col.map((c,ri)=>`<div onclick="solClick('tableau',${ci},${ri})">${c.face?cardHTML(c,s.selected&&s.selected.type==='tableau'&&s.selected.col===ci&&s.selected.row<=ri?'selected':''):cardHTML(null)}</div>`).join('')
-  }</div>`).join('');
-  let winMsg=s.phase==='win'?`<div class="msg-box" style="font-size:1.2rem;color:#FFD700">🎉 恭喜過關！共 ${s.moves} 步</div>`:'';
-  let autoBtn=`<button class="btn" style="margin-top:0.5rem" onclick="autoComplete()">自動完成</button>`;
+function renderOM(){
+  const s=OM,names=['你','玩家B','玩家C','玩家D'];
+  const othersHTML=s.hands.slice(1).map((h,i)=>{
+    const idx=i+1,done=s.done.includes(idx),isSrc=s.turn===0&&s.src===idx&&s.phase==='play';
+    return`<div class="om-other" style="border:2px solid ${isSrc?'#FFD700':'transparent'};${done?'opacity:0.45':''}">
+      <div style="font-size:0.75rem;color:#aed6ae">${names[idx]} ${done?'✅':s.turn===idx?'⬅️':''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin-top:3px">
+        ${isSrc?h.map((_,ci)=>`<div onclick="omPlayerDraw(${ci})" style="cursor:pointer">${cHTML(null)}</div>`).join(''):h.map(()=>cHTMLsm(null)).join('')}
+      </div>
+      <div style="font-size:0.75rem;color:#FFD700;margin-top:3px">${h.length}張</div>
+    </div>`;}).join('');
+  const playerCards=s.hands[0].length
+    ?s.hands[0].map((c,i)=>{const click=s.phase==='discard'||s.phase==='draw_discard';return`<div ${click?`onclick="omSelCard(${i})"`:''}>${cHTML(c,s.sel===i?'selected':'')}</div>`;}).join('')
+    :s.done.includes(0)?`<span style="color:#90EE90">✅ 已出完所有牌！</span>`:'';
+  let actionBtn='';
+  if(s.phase==='discard')actionBtn=`<button class="btn g" style="margin-top:0.4rem" onclick="omStartGame()">完成配對，開始遊戲 ▶</button>`;
+  else if(s.phase==='draw_discard')actionBtn=`<button class="btn g" style="margin-top:0.4rem" onclick="omDoneDrawDiscard()">完成配對</button>`;
+  const endBtn=s.phase==='end'?`<button class="btn g" style="margin-top:0.4rem" onclick="initOM()">再玩一次</button>`:'';
   document.getElementById('game-content').innerHTML=`
-  <div class="sol-table">
-    ${winMsg}
-    <div class="sol-top">
-      <div class="sol-foundations">${fHTML}</div>
-      <div class="stock-waste">${stockHTML}${wasteHTML}</div>
-    </div>
-    <div class="tableau">${tabHTML}</div>
-    ${s.phase!=='win'?autoBtn:'<button class="btn green" onclick="initSolitaire()">新遊戲</button>'}
-  </div>`;
+    <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-bottom:0.3rem">金框=可抽牌，點背面牌抽取</div>
+    <div class="om-others">${othersHTML}</div>
+    <div class="msg-box">${s.msg}</div>
+    <div style="color:#90EE90;font-size:0.8rem;margin-top:0.4rem">你的手牌（${s.hands[0].length}張）：</div>
+    <div class="om-hand">${playerCards}</div>
+    ${actionBtn}${endBtn}`;
+}
+
+// ── PWA ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
 }
 </script>
 </body>
